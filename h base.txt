@@ -1,0 +1,146 @@
+[training@localhost ~]$ hbase
+Usage: hbase <command>
+where <command> an option from one of these categories:
+
+DBA TOOLS
+  shell            run the HBase shell
+  hbck             run the hbase 'fsck' tool
+  hlog             write-ahead-log analyzer
+  hfile            store file analyzer
+  zkcli            run the ZooKeeper shell
+
+PROCESS MANAGEMENT
+  master           run an HBase HMaster node
+  regionserver     run an HBase HRegionServer node
+  zookeeper        run a Zookeeper server
+  rest             run an HBase REST server
+  thrift           run an HBase Thrift server
+
+PACKAGE MANAGEMENT
+  classpath        dump hbase CLASSPATH
+  version          print the version
+
+ or
+  CLASSNAME        run the class named CLASSNAME
+Most commands print help when invoked w/o parameters.
+[training@localhost ~]$ hbase shell
+23/02/28 05:55:13 WARN conf.Configuration: hadoop.native.lib is deprecated. Instead, use io.native.lib.available
+HBase Shell; enter 'help<RETURN>' for list of supported commands.
+Type "exit<RETURN>" to leave the HBase Shell
+Version 0.92.1-cdh4.1.1, rUnknown, Tue Oct 16 11:44:19 PDT 2012
+
+hbase(main):001:0> help
+HBase Shell, version 0.92.1-cdh4.1.1, rUnknown, Tue Oct 16 11:44:19 PDT 2012
+Type 'help "COMMAND"', (e.g. 'help "get"' -- the quotes are necessary) for help on a specific command.
+Commands are grouped. Type 'help "COMMAND_GROUP"', (e.g. 'help "general"') for help on a command group.
+
+COMMAND GROUPS:
+  Group name: general
+  Commands: status, version, whoami
+
+  Group name: ddl
+  Commands: alter, alter_async, alter_status, create, describe, disable, disable_all, drop, drop_all, enable, enable_all, exists, is_disabled, is_enabled, list, show_filters
+
+  Group name: dml
+  Commands: count, delete, deleteall, get, get_counter, incr, put, scan, truncate
+
+  Group name: tools
+  Commands: assign, balance_switch, balancer, close_region, compact, flush, hlog_roll, major_compact, move, split, unassign, zk_dump
+
+  Group name: replication
+  Commands: add_peer, disable_peer, enable_peer, list_peers, remove_peer, start_replication, stop_replication
+
+  Group name: security
+  Commands: grant, revoke, user_permission
+
+SHELL USAGE:
+Quote all names in HBase Shell such as table and column names.  Commas delimit
+command parameters.  Type <RETURN> after entering a command to run it.
+Dictionaries of configuration used in the creation and alteration of tables are
+Ruby Hashes. They look like this:
+
+  {'key1' => 'value1', 'key2' => 'value2', ...}
+
+and are opened and closed with curley-braces.  Key/values are delimited by the
+'=>' character combination.  Usually keys are predefined constants such as
+NAME, VERSIONS, COMPRESSION, etc.  Constants do not need to be quoted.  Type
+'Object.constants' to see a (messy) list of all constants in the environment.
+
+If you are using binary keys or values and need to enter them in the shell, use
+double-quote'd hexadecimal representation. For example:
+
+  hbase> get 't1', "key\x03\x3f\xcd"
+  hbase> get 't1', "key\003\023\011"
+  hbase> put 't1', "test\xef\xff", 'f1:', "\x01\x33\x40"
+
+The HBase shell is the (J)Ruby IRB with the above HBase-specific commands added.
+For more on the HBase Shell, see http://hbase.apache.org/docs/current/book.html
+hbase(main):002:0> create 'user',{name => 'info', versions => 1}
+NameError: undefined local variable or method `name' for #<Object:0x44a013>
+
+hbase(main):003:0> create 'user', {name => 'info', versions => 1}
+NameError: undefined local variable or method `name' for #<Object:0x44a013>
+
+hbase(main):004:0> create 'user', {NAME => 'info', VERSIONS => 1}
+0 row(s) in 1.8780 seconds
+
+hbase(main):005:0> describe 'user'
+DESCRIPTION                                                                       ENABLED                                    
+ {NAME => 'user', FAMILIES => [{NAME => 'info', BLOOMFILTER => 'NONE', REPLICATIO true                                       
+ N_SCOPE => '0', VERSIONS => '1', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL                                            
+  => '2147483647', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'tru                                            
+ e'}]}                                                                                                                       
+1 row(s) in 0.0510 seconds
+
+hbase(main):006:0> put 'user', '42', 'info:name', 'Arun'
+0 row(s) in 0.1390 seconds
+
+hbase(main):007:0> scan 'user'
+ROW                              COLUMN+CELL                                                                                 
+ 42                              column=info:name, timestamp=1677582345330, value=Arun                                       
+1 row(s) in 0.0520 seconds
+
+hbase(main):008:0> create 'blogs', 'meta', 'body', 'comment'
+0 row(s) in 1.0910 seconds
+
+hbase(main):009:0> describe 'blogs'
+DESCRIPTION                                                                       ENABLED                                    
+ {NAME => 'blogs', FAMILIES => [{NAME => 'body', BLOOMFILTER => 'NONE', REPLICATI true                                       
+ ON_SCOPE => '0', VERSIONS => '3', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TT                                            
+ L => '2147483647', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'tr                                            
+ ue'}, {NAME => 'comment', BLOOMFILTER => 'NONE', REPLICATION_SCOPE => '0', VERSI                                            
+ ONS => '3', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => '2147483647', BLO                                            
+ CKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}, {NAME => 'meta',                                            
+  BLOOMFILTER => 'NONE', REPLICATION_SCOPE => '0', VERSIONS => '3', COMPRESSION =                                            
+ > 'NONE', MIN_VERSIONS => '0', TTL => '2147483647', BLOCKSIZE => '65536', IN_MEM                                            
+ ORY => 'false', BLOCKCACHE => 'true'}]}                                                                                     
+1 row(s) in 0.0500 seconds
+
+hbase(main):010:0> list
+TABLE                                                                                                                        
+blogs                                                                                                                        
+user                                                                                                                         
+2 row(s) in 0.0480 seconds
+
+hbase(main):011:0> create 'mytable', 'cf'
+0 row(s) in 1.1090 seconds
+
+hbase(main):012:0> put 'mytable', 'rowl', 'cf:col', 'foo'
+0 row(s) in 0.0300 seconds
+
+hbase(main):013:0> put 'mytable', 'row1', 'cf:col', 'foo'
+0 row(s) in 0.0130 seconds
+
+hbase(main):014:0> flush 'mytable'
+0 row(s) in 0.1180 seconds
+
+hbase(main):015:0> put 'mytable', 'row2', 'cf:col', 'bar'
+0 row(s) in 0.0170 seconds
+
+hbase(main):016:0> flush 'mytable'
+0 row(s) in 0.1070 seconds
+
+hbase(main):017:0> major_compact 'mytable'
+0 row(s) in 0.0640 seconds
+
+hbase(main):018:0> 
